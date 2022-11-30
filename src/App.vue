@@ -7,22 +7,22 @@
           label="Name"
       ></v-text-field>
       <v-text-field
-          v-model="userObject.last_name"
+          v-model="userObject.lastName"
           label="Apellidos"
       ></v-text-field>
       <v-text-field
           v-model="userObject.age"
           label="Edad"
       ></v-text-field>
-      <v-text-field
-          v-model="userObject.sex"
+      <v-select
+          :items="sexItems"
           label="Sexo"
-      ></v-text-field>
+          v-model="userObject.sex"
+      ></v-select>
       <v-text-field
           v-model="userObject.email"
           label="Correo"
       ></v-text-field>
-
       <v-btn
           class="mr-4"
           @click="insertUser"
@@ -47,25 +47,25 @@
         </v-text-field>
         <h5> Cantidad de personas del sexo femenino</h5>
         <v-text-field
-            v-model="cf"
+            v-model="countFemales"
             readonly
         >
         </v-text-field>
         <h5> Cantidad de personas del sexo masculino</h5>
         <v-text-field
-            v-model="cm"
+            v-model="countMales"
             readonly
         >
         </v-text-field>
         <h5> Cantidad de personas menores de edad</h5>
         <v-text-field
-            v-model="mAge"
+            v-model="minorAges"
             readonly
         >
         </v-text-field>
         <h5> Cantidad de personas mayores de edad</h5>
         <v-text-field
-            v-model="mayAge"
+            v-model="majorAges"
             readonly
         >
         </v-text-field>
@@ -87,93 +87,135 @@ export default {
     return {
       userObject: {
         name: '',
-        last_name: '',
+        lastName: '',
         age: '',
         sex: '',
         email: '',
-        nacionalidad: '',
+        nationality: '',
       },
       users: [],
       count: 0,
-      average: '',
-      cf: '',
-      cm: '',
-      mAge: '',
-      mayAge: '',
+
+      sexItems: ['Femenino', 'Masculino'],
     }
   },
   methods: {
-    insertUser: function () {
-      this.probableNacionalidad();
-      console.log(this.userObject);
+    insertUser: async function () {
+      await this.probableNationality();
       this.users.push(this.userObject);
       this.clearFields();
-      this.averageAge();
-      this.countFemale();
-      this.countMale();
-      this.menorAge();
-      this.mayorAge();
+      // this.averageAge();
+      // this.countFemale();
+      // this.countMale();
+      // this.minorAge();
+      // this.majorAge();
     },
     clearFields: function () {
       this.userObject = {
         name: '',
-        last_name: '',
+        lastName: '',
         age: '',
         sex: '',
         email: '',
-        nacionalidad: '',
+        nationality: '',
       }
     },
-    averageAge: function () {
-      let cc = 0;
-      let count = this.users.length;
-      this.users.forEach((user) => {
-        cc += parseInt(user.age);
-      });
-
-      this.average = cc / count;
-    },
-    countFemale: function () {
-      this.cf = '';
-      this.users.forEach((user) => {
-        if (user.sex === 'F' || user.sex === 'f' || user.sex === 'Femenino' || user.sex === 'femenino') {
-          this.cf++;
-        }
-      });
-    },
-    countMale: function () {
-      this.cm = '';
-      this.users.forEach((user) => {
-        if (user.sex === 'M' || user.sex === 'm' || user.sex === 'Masculino' || user.sex === 'masculino') {
-          this.cm++;
-        }
-      });
-    },
-    menorAge: function () {
-      this.mAge = '';
-      this.users.forEach((user) => {
-        if (user.age < 18) {
-          this.mAge++;
-        }
-      });
-    },
-    mayorAge: function () {
-      this.mayAge = '';
-      this.users.forEach((user) => {
-        if (user.age >= 18) {
-          this.mayAge++;
-        }
-      });
-    },
-    probableNacionalidad:async function () {
-      await axios.get('https://api.nationalize.io/?name=' + this.userObject.name).then((response) => {
-        this.userObject.nacionalidad = response.data.country[0].country_id;
+    // averageAge: function () {
+    //   let total = 0;
+    //   let count = this.users.length;
+    //   this.users.forEach((user) => {
+    //     total += parseInt(user.age);
+    //   });
+    //
+    //   this.average = total / count;
+    // },
+    // countFemale: function () {
+    //   this.countFemales = '';
+    //   this.users.forEach((user) => {
+    //     if (user.sex === 'F' || user.sex === 'f' || user.sex === 'Femenino' || user.sex === 'femenino') {
+    //       this.countFemales++;
+    //     }
+    //   });
+    // },
+    // countMale: function () {
+    //   this.cm = '';
+    //   this.users.forEach((user) => {
+    //     if (user.sex === 'M' || user.sex === 'm' || user.sex === 'Masculino' || user.sex === 'masculino') {
+    //       this.countMales++;
+    //     }
+    //   });
+    // },
+    // minorAge: function () {
+    //   this.minorAges = '';
+    //   this.users.forEach((user) => {
+    //     if (user.age < 18) {
+    //       this.minorAges++;
+    //     }
+    //   });
+    // },
+    // majorAge: function () {
+    //   this.majorAges = '';
+    //   this.users.forEach((user) => {
+    //     if (user.age >= 18) {
+    //       this.majorAges++;
+    //     }
+    //   });
+    // },
+    probableNationality: function () {
+        axios.get('https://api.nationalize.io/?name=' + this.userObject.name).then((response) => {
+        this.userObject.nationality = response.data.country[0].country_id;
       });
     },
   },
   computed: {
+    averageAge() {
+      let total = 0;
+      let average = 0;
+      let count = this.users.length;
+      this.users.forEach((user) => {
+        total += parseInt(user.age);
+      });
+      average = total / count;
+      return average;
+    },
+    countFemale() {
+      let countFemales = 0;
+      this.users.forEach((user) => {
+        if (user.sex === 'Femenino') {
+          countFemales++;
+        }
+      });
+      return countFemales
+    },
+    countMale() {
+      let countMales = 0;
+      this.users.forEach((user) => {
+        if (user.sex === 'Masculino') {
+          countMales++;
+        }
+      });
+      return countMales;
+    },
+    minorAge() {
+      let minorAges = 0;
+      this.users.forEach((user) => {
+        if (user.age < 18) {
+          minorAges++;
+        }
+      });
+      return minorAges;
+    },
+    majorAge () {
+      let majorAges = '';
+      this.users.forEach((user) => {
+        if (user.age >= 18) {
+          majorAges++;
+        }
+      });
+      return majorAges;
+    },
     headers() {
-      let hh = [
+      let headers = [
         {
           text: 'Nombre',
           align: 'start',
@@ -182,13 +224,13 @@ export default {
         },
       ];
       if (!this.$vuetify.breakpoint.xsOnly) {
-        hh.push({text: 'Apellidos', value: 'last_name'});
-        hh.push({text: 'Edad', value: 'age'});
+        headers.push({text: 'Apellidos', value: 'lastName'});
+        headers.push({text: 'Edad', value: 'age'});
       }
-      hh.push({text: 'Sexo', value: 'sex'});
-      hh.push({text: 'Correo', value: 'email'});
-      hh.push({text: 'Nacionalidad Probable', value: 'nacionalidad'});
-      return hh;
+      headers.push({text: 'Sexo', value: 'sex'});
+      headers.push({text: 'Correo', value: 'email'});
+      headers.push({text: 'Nacionalidad Probable', value: 'nationality'});
+      return headers;
     }
   }
 
