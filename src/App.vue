@@ -92,6 +92,7 @@ export default {
         sex: '',
         email: '',
         nationality: '',
+
       },
       users: [],
       count: 0,
@@ -101,14 +102,14 @@ export default {
   },
   methods: {
     insertUser: async function () {
-      await this.probableNationality();
       this.users.push(this.userObject);
+      await this.probableNationality();
       this.clearFields();
-      // this.averageAge();
-      // this.countFemale();
-      // this.countMale();
-      // this.minorAge();
-      // this.majorAge();
+      this.averageAge();
+      this.countFemale();
+      this.countMale();
+      this.minorAge();
+      this.majorAge();
     },
     clearFields: function () {
       this.userObject = {
@@ -120,100 +121,55 @@ export default {
         nationality: '',
       }
     },
-    // averageAge: function () {
-    //   let total = 0;
-    //   let count = this.users.length;
-    //   this.users.forEach((user) => {
-    //     total += parseInt(user.age);
-    //   });
-    //
-    //   this.average = total / count;
-    // },
-    // countFemale: function () {
-    //   this.countFemales = '';
-    //   this.users.forEach((user) => {
-    //     if (user.sex === 'F' || user.sex === 'f' || user.sex === 'Femenino' || user.sex === 'femenino') {
-    //       this.countFemales++;
-    //     }
-    //   });
-    // },
-    // countMale: function () {
-    //   this.cm = '';
-    //   this.users.forEach((user) => {
-    //     if (user.sex === 'M' || user.sex === 'm' || user.sex === 'Masculino' || user.sex === 'masculino') {
-    //       this.countMales++;
-    //     }
-    //   });
-    // },
-    // minorAge: function () {
-    //   this.minorAges = '';
-    //   this.users.forEach((user) => {
-    //     if (user.age < 18) {
-    //       this.minorAges++;
-    //     }
-    //   });
-    // },
-    // majorAge: function () {
-    //   this.majorAges = '';
-    //   this.users.forEach((user) => {
-    //     if (user.age >= 18) {
-    //       this.majorAges++;
-    //     }
-    //   });
-    // },
-    probableNationality: function () {
-        axios.get('https://api.nationalize.io/?name=' + this.userObject.name).then((response) => {
-        this.userObject.nationality = response.data.country[0].country_id;
-      });
-    },
-  },
-  computed: {
-    averageAge() {
+    averageAge: function () {
       let total = 0;
-      let average = 0;
       let count = this.users.length;
       this.users.forEach((user) => {
         total += parseInt(user.age);
       });
-      average = total / count;
-      return average;
+
+      this.average = total / count;
     },
-    countFemale() {
-      let countFemales = 0;
+    countFemale: function () {
+      this.countFemales = '';
       this.users.forEach((user) => {
-        if (user.sex === 'Femenino') {
-          countFemales++;
+        if (user.sex === 'F' || user.sex === 'f' || user.sex === 'Femenino' || user.sex === 'femenino') {
+          this.countFemales++;
         }
       });
-      return countFemales
     },
-    countMale() {
-      let countMales = 0;
+    countMale: function () {
+      this.cm = '';
       this.users.forEach((user) => {
-        if (user.sex === 'Masculino') {
-          countMales++;
+        if (user.sex === 'M' || user.sex === 'm' || user.sex === 'Masculino' || user.sex === 'masculino') {
+          this.countMales++;
         }
       });
-      return countMales;
     },
-    minorAge() {
-      let minorAges = 0;
+    minorAge: function () {
+      this.minorAges = '';
       this.users.forEach((user) => {
         if (user.age < 18) {
-          minorAges++;
+          this.minorAges++;
         }
       });
-      return minorAges;
     },
-    majorAge () {
-      let majorAges = '';
+    majorAge: function () {
+      this.majorAges = '';
       this.users.forEach((user) => {
         if (user.age >= 18) {
-          majorAges++;
+          this.majorAges++;
         }
       });
-      return majorAges;
     },
+    probableNationality: function () {
+        axios.get('https://api.nationalize.io/?name=Dalianis').then((response) => {
+        this.users[0].nationality= response.data.country[0].country_id;
+        console.log(this.userObject);
+      });
+    },
+  },
+  computed: {
     headers() {
       let headers = [
         {
